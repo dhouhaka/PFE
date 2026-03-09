@@ -200,7 +200,7 @@ export default function AdminUsers() {
       case 'admin': return 'Admin';
       case 'enseignant': return 'Teacher';
       case 'etudiant': return 'Student';
-      default: return role;
+      default: return role; 
     }
   };
 

@@ -10,6 +10,9 @@ import 'package:EduNex/screens/test_theme/test_showdialog.dart';
 import 'package:EduNex/screens/test_theme/test_text.dart';
 import 'package:EduNex/utils/theme/theme.dart';
 
+import 'screens/admin/profile.dart';
+import 'screens/admin/users.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -26,7 +29,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      home: const LoginScreen(),
+      home: const AdminProfileScreen(),
     );
   }
 }
