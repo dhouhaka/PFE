@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:EduNex/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/auth_response_model.dart';
@@ -158,4 +159,13 @@ class AuthResult {
       message: json['message'] as String?,
     );
   }
+}
+
+//getCurrentUser function to retrieve the current user from secure storage
+Future<UserModel?> getCurrentUser() async {
+  final userJson = await StorageService.instance.getUser();
+  if (userJson != null) {
+    return UserModel.fromJson(jsonDecode(userJson as String) as Map<String, dynamic>);
+  }
+  return null;
 }
