@@ -12,6 +12,7 @@ import '../../models/notification_model.dart';
 import 'notifications.dart';
 
 const String _apiBase = 'http://192.168.1.109:5000';
+//const String _apiBase = 'http://10.0.2.2:5000'; // for emulator
 
 // Breakpoint below which the sidebar becomes a drawer
 const double _kSidebarBreakpoint = 768.0;
