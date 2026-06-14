@@ -8,10 +8,10 @@ import 'package:EduNex/services/user_service.dart';
 import '../Sidebars/StudentSidebar.dart';
 import '../../models/user_model.dart';
 import '../../services/notification_service.dart';
-import '../../models/notification_model.dart';
 import 'notifications.dart';
+import 'package:EduNex/screens/student/profile.dart';
 
-const String _apiBase = 'http://192.168.1.109:5000';
+const String _apiBase = 'http://192.168.1.211:5000';
 //const String _apiBase = 'http://10.0.2.2:5000'; // for emulator
 
 // Breakpoint below which the sidebar becomes a drawer
@@ -23,7 +23,7 @@ class _Notif {
   final String id;
   final String message;
   final String date;
-  final bool   unread;
+  final bool unread;
   const _Notif({
     required this.id,
     required this.message,
@@ -42,25 +42,24 @@ class StudentLayout extends StatefulWidget {
 }
 
 class _StudentLayoutState extends State<StudentLayout> {
-
   // ── State ──────────────────────────────────────────────────────────────────
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  bool    _sidebarCollapsed  = false;
-  String  _currentPath       = '';
-  bool    _loggingOut        = false;
-  bool    _showLogoutSuccess = false;
-  bool    _loadingUser       = true;
+  bool _sidebarCollapsed = false;
+  String _currentPath = '';
+  bool _loggingOut = false;
+  bool _showLogoutSuccess = false;
+  bool _loadingUser = true;
 
   UserModel? _user;
   String? _studentName;
   String? _studentEmail;
   String? _avatarUrl;
-  String  _initials = 'ST';
+  String _initials = 'ST';
 
   List<_Notif> _notifications = [];
-  bool         _loadingNotifs  = true;
+  bool _loadingNotifs = true;
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -69,7 +68,7 @@ class _StudentLayoutState extends State<StudentLayout> {
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
-@override
+  @override
   void initState() {
     super.initState();
     _loadStudent();
@@ -90,20 +89,19 @@ class _StudentLayoutState extends State<StudentLayout> {
       user ??= await UserService.instance.getProfile();
       _user = user;
 
-      if (user != null) {
-        final first = user.prenom?.isNotEmpty == true
-            ? user.prenom![0].toUpperCase() : '';
-        final last  = user.nom?.isNotEmpty == true
-            ? user.nom![0].toUpperCase() : '';
-        _studentName  = user.fullName.isNotEmpty
-            ? user.fullName
-            : '${user.prenom ?? ''} ${user.nom ?? ''}'.trim();
-        _studentEmail = user.email.isNotEmpty ? user.email : 'student@edunex.com';
-        _initials     = (first + last).isNotEmpty ? first + last : 'ST';
-        _avatarUrl    = (user.imageUser as String?)?.isNotEmpty == true
-            ? '$_apiBase/images/${user.imageUser}'
-            : null;
-      }
+      final first =
+          user.prenom.isNotEmpty == true ? user.prenom[0].toUpperCase() : '';
+      final last = user.nom.isNotEmpty == true ? user.nom[0].toUpperCase() : '';
+      _studentName =
+          user.fullName.isNotEmpty
+              ? user.fullName
+              : '${user.prenom ?? ''} ${user.nom ?? ''}'.trim();
+      _studentEmail = user.email.isNotEmpty ? user.email : 'student@edunex.com';
+      _initials = (first + last).isNotEmpty ? first + last : 'ST';
+      _avatarUrl =
+          (user.imageUser)?.isNotEmpty == true
+              ? '$_apiBase/images/${user.imageUser}'
+              : null;
     } catch (e) {
       debugPrint('Full load error: $e');
     } finally {
@@ -111,19 +109,26 @@ class _StudentLayoutState extends State<StudentLayout> {
     }
   }
 
-Future<void> _fetchNotifications() async {
+  Future<void> _fetchNotifications() async {
     setState(() => _loadingNotifs = true);
     try {
       if (_user?.id != null) {
         print('Fetching notifications for user: ${_user!.id}');
-        final notifications = await NotificationService.instance.getByUser(_user!.id!);
+        final notifications = await NotificationService.instance.getByUser(
+          _user!.id,
+        );
         print('Got ${notifications.length} notifications');
-        _notifications = notifications.map((n) => _Notif(
-          id: n.id,
-          message: '${n.titre ?? "Notification"}: ${n.message ?? ''}',
-          date: _formatDate(n.createdAt),
-          unread: !n.lu,
-        )).toList();
+        _notifications =
+            notifications
+                .map(
+                  (n) => _Notif(
+                    id: n.id,
+                    message: '${n.titre ?? "Notification"}: ${n.message ?? ''}',
+                    date: _formatDate(n.createdAt),
+                    unread: !n.lu,
+                  ),
+                )
+                .toList();
         if (mounted) setState(() {});
       } else {
         print('No user ID for notifications');
@@ -136,10 +141,9 @@ Future<void> _fetchNotifications() async {
     }
   }
 
-
   String _formatDate(DateTime date) {
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1)  return 'Just now';
+    if (diff.inMinutes < 1) return 'Just now';
     if (diff.inMinutes < 60) return '${diff.inMinutes} min';
     if (diff.inHours < 24) return '${diff.inHours}h';
     if (diff.inDays < 7) return '${diff.inDays}d';
@@ -159,7 +163,10 @@ Future<void> _fetchNotifications() async {
       await AuthService.instance.logout();
     } catch (_) {}
     if (!mounted) return;
-    setState(() { _loggingOut = false; _showLogoutSuccess = true; });
+    setState(() {
+      _loggingOut = false;
+      _showLogoutSuccess = true;
+    });
     await Future.delayed(const Duration(milliseconds: 1500));
     if (!mounted) return;
     Navigator.pushAndRemoveUntil(
@@ -180,18 +187,30 @@ Future<void> _fetchNotifications() async {
 
   Widget _buildPage() {
     switch (_currentPath) {
-      case '':              return const Center(child: Text('Dashboard'));
-      case 'courses':       return const Center(child: Text('Courses'));
-      case 'timetable':     return const Center(child: Text('Timetable'));
-      case 'exams':         return const Center(child: Text('Exams & Notes'));
-      case 'attendance':    return const Center(child: Text('Attendance'));
-      case 'announcements': return const Center(child: Text('Announcements'));
-      case 'requests':      return const Center(child: Text('Requests'));
-      case 'messages':      return const Center(child: Text('Messages'));
-case 'notifications': return NotificationsPage();
-      case 'chatbot':       return const Center(child: Text('EduBot'));
-      case 'profile':       return const Center(child: Text('Profile'));
-      default:              return const Center(child: Text('Dashboard'));
+      case '':
+        return const Center(child: Text('Dashboard'));
+      case 'courses':
+        return const Center(child: Text('Courses'));
+      case 'timetable':
+        return const Center(child: Text('Timetable'));
+      case 'exams':
+        return const Center(child: Text('Exams & Notes'));
+      case 'attendance':
+        return const Center(child: Text('Attendance'));
+      case 'announcements':
+        return const Center(child: Text('Announcements'));
+      case 'requests':
+        return const Center(child: Text('Requests'));
+      case 'messages':
+        return const Center(child: Text('Messages'));
+      case 'notifications':
+        return NotificationsPage();
+      case 'chatbot':
+        return const Center(child: Text('EduBot'));
+      case 'profile':
+        return const StudentProfilePage();
+      default:
+        return const Center(child: Text('Dashboard'));
     }
   }
 
@@ -199,14 +218,15 @@ case 'notifications': return NotificationsPage();
 
   Widget _buildSidebar() {
     return StudentSidebar(
-      currentPath:      _currentPath,
-      isCollapsed:      _sidebarCollapsed,
-      onToggleCollapse: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
-      onNavigate:       _navigate,
-      studentName:      _studentName,
-      studentEmail:     _studentEmail,
-      avatarUrl:        _avatarUrl,
-      user:             _user,
+      currentPath: _currentPath,
+      isCollapsed: _sidebarCollapsed,
+      onToggleCollapse:
+          () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+      onNavigate: _navigate,
+      studentName: _studentName,
+      studentEmail: _studentEmail,
+      avatarUrl: _avatarUrl,
+      user: _user,
     );
   }
 
@@ -215,16 +235,14 @@ case 'notifications': return NotificationsPage();
   @override
   Widget build(BuildContext context) {
     final isMobile = _isMobile(context);
-    final isDark   = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: isMobile
-          ? Drawer(
-              width: 260,
-              child: SafeArea(child: _buildSidebar()),
-            )
-          : null,
+      drawer:
+          isMobile
+              ? Drawer(width: 260, child: SafeArea(child: _buildSidebar()))
+              : null,
       body: SafeArea(
         child: Stack(
           children: [
@@ -236,9 +254,12 @@ case 'notifications': return NotificationsPage();
                     children: [
                       _buildTopBar(isDark: isDark, isMobile: isMobile),
                       Expanded(
-                        child: _loadingUser
-                            ? const Center(child: CircularProgressIndicator())
-                            : _buildPage(),
+                        child:
+                            _loadingUser
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : _buildPage(),
                       ),
                     ],
                   ),
@@ -247,7 +268,9 @@ case 'notifications': return NotificationsPage();
             ),
             if (_showLogoutSuccess)
               Positioned(
-                top: 8, right: 12, left: 12,
+                top: 8,
+                right: 12,
+                left: 12,
                 child: const _LogoutToast(),
               ),
           ],
@@ -281,14 +304,17 @@ case 'notifications': return NotificationsPage();
         children: [
           IconButton(
             icon: const Icon(Icons.menu_rounded),
-            onPressed: isMobile
-                ? () => _scaffoldKey.currentState?.openDrawer()
-                : () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+            onPressed:
+                isMobile
+                    ? () => _scaffoldKey.currentState?.openDrawer()
+                    : () =>
+                        setState(() => _sidebarCollapsed = !_sidebarCollapsed),
             iconSize: 22,
             tooltip: 'Menu',
           ),
           Container(
-            width: 28, height: 28,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(7),
               gradient: const LinearGradient(
@@ -296,18 +322,24 @@ case 'notifications': return NotificationsPage();
               ),
             ),
             child: const Center(
-              child: Text('E',
+              child: Text(
+                'E',
                 style: TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
             ),
           ),
           if (MediaQuery.of(context).size.width > 360) ...[
             const SizedBox(width: 8),
             Flexible(
               child: ShaderMask(
-                shaderCallback: (b) => const LinearGradient(
-                  colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                ).createShader(b),
+                shaderCallback:
+                    (b) => const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                    ).createShader(b),
                 child: Text(
                   isMobile ? 'EduNex' : 'EduNex Student Portal',
                   overflow: TextOverflow.ellipsis,
@@ -332,21 +364,21 @@ case 'notifications': return NotificationsPage();
             tooltip: isDark ? 'Light mode' : 'Dark mode',
           ),
           _NotificationButton(
-            unreadCount:   _unreadCount,
+            unreadCount: _unreadCount,
             notifications: _notifications,
-            loading:       _loadingNotifs,
-            onDelete:      _deleteNotification,
-            onViewAll:     () => _navigate('notifications'),
+            loading: _loadingNotifs,
+            onDelete: _deleteNotification,
+            onViewAll: () => _navigate('notifications'),
           ),
           const SizedBox(width: 4),
           _UserMenuButton(
-            initials:   _initials,
-            fullName:   _studentName  ?? 'Student User',
-            email:      _studentEmail ?? 'student@edunex.com',
-            avatarUrl:  _avatarUrl,
+            initials: _initials,
+            fullName: _studentName ?? 'Student User',
+            email: _studentEmail ?? 'student@edunex.com',
+            avatarUrl: _avatarUrl,
             loggingOut: _loggingOut,
-            onProfile:  () => _navigate('profile'),
-            onLogout:   _handleLogout,
+            onProfile: () => _navigate('profile'),
+            onLogout: _handleLogout,
           ),
           const SizedBox(width: 4),
         ],
@@ -358,11 +390,11 @@ case 'notifications': return NotificationsPage();
 // ─── Notification Button ──────────────────────────────────────────────────────
 
 class _NotificationButton extends StatelessWidget {
-  final int                   unreadCount;
-  final List<_Notif>          notifications;
-  final bool                  loading;
+  final int unreadCount;
+  final List<_Notif> notifications;
+  final bool loading;
   final void Function(String) onDelete;
-  final VoidCallback          onViewAll;
+  final VoidCallback onViewAll;
 
   const _NotificationButton({
     required this.unreadCount,
@@ -381,18 +413,19 @@ class _NotificationButton extends StatelessWidget {
         minWidth: 300,
         maxWidth: MediaQuery.of(context).size.width > 380 ? 360 : 300,
       ),
-      itemBuilder: (_) => [
-        PopupMenuItem(
-          enabled: false,
-          padding: EdgeInsets.zero,
-          child: _NotificationPanel(
-            notifications: notifications,
-            loading:       loading,
-            onDelete:      onDelete,
-            onViewAll:     onViewAll,
-          ),
-        ),
-      ],
+      itemBuilder:
+          (_) => [
+            PopupMenuItem(
+              enabled: false,
+              padding: EdgeInsets.zero,
+              child: _NotificationPanel(
+                notifications: notifications,
+                loading: loading,
+                onDelete: onDelete,
+                onViewAll: onViewAll,
+              ),
+            ),
+          ],
       child: Semantics(
         label: 'Notifications${unreadCount > 0 ? ", $unreadCount unread" : ""}',
         button: true,
@@ -405,9 +438,11 @@ class _NotificationButton extends StatelessWidget {
             ),
             if (unreadCount > 0)
               Positioned(
-                top: 2, right: 2,
+                top: 2,
+                right: 2,
                 child: Container(
-                  width: 18, height: 18,
+                  width: 18,
+                  height: 18,
                   decoration: const BoxDecoration(
                     color: Colors.red,
                     shape: BoxShape.circle,
@@ -416,7 +451,10 @@ class _NotificationButton extends StatelessWidget {
                     child: Text(
                       unreadCount > 9 ? '9+' : '$unreadCount',
                       style: const TextStyle(
-                        color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -429,10 +467,10 @@ class _NotificationButton extends StatelessWidget {
 }
 
 class _NotificationPanel extends StatelessWidget {
-  final List<_Notif>          notifications;
-  final bool                  loading;
+  final List<_Notif> notifications;
+  final bool loading;
   final void Function(String) onDelete;
-  final VoidCallback          onViewAll;
+  final VoidCallback onViewAll;
 
   const _NotificationPanel({
     required this.notifications,
@@ -454,12 +492,15 @@ class _NotificationPanel extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                const Text('Notifications',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                const Text(
+                  'Notifications',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
                 const Spacer(),
                 if (loading)
                   const SizedBox(
-                    width: 16, height: 16,
+                    width: 16,
+                    height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
               ],
@@ -469,26 +510,31 @@ class _NotificationPanel extends StatelessWidget {
           if (!loading && notifications.isEmpty)
             const Padding(
               padding: EdgeInsets.all(24),
-              child: Text('No new notifications',
-                style: TextStyle(color: Colors.grey, fontSize: 13)),
+              child: Text(
+                'No new notifications',
+                style: TextStyle(color: Colors.grey, fontSize: 13),
+              ),
             )
           else
             Flexible(
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: notifications
-                      .take(3)
-                      .map((n) => _NotifTile(notif: n, onDelete: onDelete))
-                      .toList(),
+                  children:
+                      notifications
+                          .take(3)
+                          .map((n) => _NotifTile(notif: n, onDelete: onDelete))
+                          .toList(),
                 ),
               ),
             ),
           const Divider(height: 1),
           TextButton(
             onPressed: onViewAll,
-            child: const Text('View all notifications',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+            child: const Text(
+              'View all notifications',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            ),
           ),
         ],
       ),
@@ -497,7 +543,7 @@ class _NotificationPanel extends StatelessWidget {
 }
 
 class _NotifTile extends StatelessWidget {
-  final _Notif                notif;
+  final _Notif notif;
   final void Function(String) onDelete;
   const _NotifTile({required this.notif, required this.onDelete});
 
@@ -505,22 +551,25 @@ class _NotifTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: notif.unread
-            ? const Color(0xFF6366F1).withOpacity(0.05)
-            : Colors.transparent,
+        color:
+            notif.unread
+                ? const Color(0xFF6366F1).withOpacity(0.05)
+                : Colors.transparent,
       ),
       child: ListTile(
         dense: true,
         minLeadingWidth: 12,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         leading: Container(
-          width: 8, height: 8,
+          width: 8,
+          height: 8,
           margin: const EdgeInsets.only(top: 4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: notif.unread
-                ? const Color(0xFF6366F1)
-                : Colors.grey.withOpacity(0.4),
+            color:
+                notif.unread
+                    ? const Color(0xFF6366F1)
+                    : Colors.grey.withOpacity(0.4),
           ),
         ),
         title: Text(
@@ -532,8 +581,10 @@ class _NotifTile extends StatelessWidget {
             fontWeight: notif.unread ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
-        subtitle: Text(notif.date,
-          style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        subtitle: Text(
+          notif.date,
+          style: const TextStyle(fontSize: 11, color: Colors.grey),
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline_rounded, size: 18),
           color: Colors.grey,
@@ -548,11 +599,11 @@ class _NotifTile extends StatelessWidget {
 // ─── User Menu Button ─────────────────────────────────────────────────────────
 
 class _UserMenuButton extends StatelessWidget {
-  final String       initials;
-  final String       fullName;
-  final String       email;
-  final String?      avatarUrl;
-  final bool         loggingOut;
+  final String initials;
+  final String fullName;
+  final String email;
+  final String? avatarUrl;
+  final bool loggingOut;
   final VoidCallback onProfile;
   final VoidCallback onLogout;
 
@@ -573,83 +624,111 @@ class _UserMenuButton extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (v) {
         if (v == 'profile') onProfile();
-        if (v == 'logout')  onLogout();
+        if (v == 'logout') onLogout();
       },
-      itemBuilder: (_) => [
-        PopupMenuItem(
-          enabled: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(fullName,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-              const SizedBox(height: 2),
-              Text(email,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.grey, fontSize: 11)),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
-        PopupMenuItem(
-          value: 'profile',
-          child: Row(
-            children: const [
-              Icon(Icons.person_outline_rounded, size: 18),
-              SizedBox(width: 10),
-              Text('Profile', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
-        PopupMenuItem(
-          value: 'logout',
-          child: loggingOut
-              ? const Row(children: [
-                  SizedBox(
-                    width: 18, height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.red),
+      itemBuilder:
+          (_) => [
+            PopupMenuItem(
+              enabled: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    fullName,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
+                  const SizedBox(height: 2),
+                  Text(
+                    email,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.grey, fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+            const PopupMenuDivider(),
+            PopupMenuItem(
+              value: 'profile',
+              child: Row(
+                children: const [
+                  Icon(Icons.person_outline_rounded, size: 18),
                   SizedBox(width: 10),
-                  Text('Logging out…', style: TextStyle(fontSize: 14, color: Colors.red)),
-                ])
-              : const Row(children: [
-                  Icon(Icons.logout_rounded, size: 18, color: Colors.red),
-                  SizedBox(width: 10),
-                  Text('Log out', style: TextStyle(fontSize: 14, color: Colors.red)),
-                ]),
-        ),
-      ],
+                  Text('Profile', style: TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+            const PopupMenuDivider(),
+            PopupMenuItem(
+              value: 'logout',
+              child:
+                  loggingOut
+                      ? const Row(
+                        children: [
+                          SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.red,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Logging out…',
+                            style: TextStyle(fontSize: 14, color: Colors.red),
+                          ),
+                        ],
+                      )
+                      : const Row(
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            size: 18,
+                            color: Colors.red,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Log out',
+                            style: TextStyle(fontSize: 14, color: Colors.red),
+                          ),
+                        ],
+                      ),
+            ),
+          ],
       // ── FIX: replaced broken CircleAvatar nesting with explicit Container ──
       child: Semantics(
         label: 'User menu',
         button: true,
-        child: avatarUrl != null
-            ? CircleAvatar(
-                radius: 17,
-                backgroundImage: NetworkImage(avatarUrl!),
-              )
-            : Container(
-                width: 34,
-                height: 34,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+        child:
+            avatarUrl != null
+                ? CircleAvatar(
+                  radius: 17,
+                  backgroundImage: NetworkImage(avatarUrl!),
+                )
+                : Container(
+                  width: 34,
+                  height: 34,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Text(
-                    initials,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
-              ),
       ),
     );
   }
@@ -681,7 +760,10 @@ class _LogoutToast extends StatelessWidget {
             child: Text(
               'Successfully logged out! Redirecting…',
               style: TextStyle(
-                color: Color(0xFF15803D), fontSize: 13, fontWeight: FontWeight.w500),
+                color: Color(0xFF15803D),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

@@ -59,7 +59,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
     _otpControllers = List.generate(_otpLength, (_) => TextEditingController());
     _otpFocusNodes = List.generate(_otpLength, (_) => FocusNode());
-    for (final f in _otpFocusNodes) f.addListener(() => setState(() {}));
+    for (final f in _otpFocusNodes) {
+      f.addListener(() => setState(() {}));
+    }
 
     _blob1 = AnimationController(
       vsync: this,
@@ -98,8 +100,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
     _passwordFocus.dispose();
     _confirmController.dispose();
     _confirmFocus.dispose();
-    for (final c in _otpControllers) c.dispose();
-    for (final f in _otpFocusNodes) f.dispose();
+    for (final c in _otpControllers) {
+      c.dispose();
+    }
+    for (final f in _otpFocusNodes) {
+      f.dispose();
+    }
     _blob1.dispose();
     _blob2.dispose();
     _blob3.dispose();
@@ -276,7 +282,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       setState(() {
         if (_step == 2) {
           _step = 1;
-          for (final c in _otpControllers) c.clear();
+          for (final c in _otpControllers) {
+            c.clear();
+          }
         } else if (_step == 3) {
           _step = 2;
           _passwordController.clear();
@@ -722,10 +730,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   ),
                   onChanged: (val) {
                     setState(() {});
-                    if (val.isNotEmpty && i < _otpLength - 1)
+                    if (val.isNotEmpty && i < _otpLength - 1) {
                       _otpFocusNodes[i + 1].requestFocus();
-                    if (val.isEmpty && i > 0)
+                    }
+                    if (val.isEmpty && i > 0) {
                       _otpFocusNodes[i - 1].requestFocus();
+                    }
                   },
                   onTap: () => setState(() {}),
                 ),
@@ -1254,10 +1264,12 @@ class _GridPainter extends CustomPainter {
           ..color = Colors.white.withOpacity(0.02)
           ..strokeWidth = 1;
     const spacing = 100.0;
-    for (double x = 0; x < size.width; x += spacing)
+    for (double x = 0; x < size.width; x += spacing) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    for (double y = 0; y < size.height; y += spacing)
+    }
+    for (double y = 0; y < size.height; y += spacing) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
   }
 
   @override

@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:EduNex/screens/Auth/forget.dart' ;
 import 'package:EduNex/screens/Auth/login.dart' ;
-import 'package:EduNex/screens/test_theme/test_appbar.dart';
-import 'package:EduNex/screens/test_theme/test_bottomsheet.dart';
-import 'package:EduNex/screens/test_theme/test_button.dart';
-import 'package:EduNex/screens/test_theme/test_checkbox.dart';
-import 'package:EduNex/screens/test_theme/test_formfield.dart';
-import 'package:EduNex/screens/test_theme/test_showdialog.dart';
-import 'package:EduNex/screens/test_theme/test_text.dart';
 import 'package:EduNex/utils/theme/theme.dart';
 
-import 'screens/admin/profile.dart';
-import 'screens/student/Layout.dart' as student_layout;
-import 'screens/admin/users.dart';
 
+import 'screens/student/Layout.dart' as student_layout;
+import 'screens/student/profile.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -34,10 +25,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginScreen(),
         '/student': (context) => student_layout.StudentLayout(),
-        '/teacher': (context) => Placeholder(child: Text('Teacher Dashboard')),
-        '/admin': (context) => Placeholder(child: Text('Admin Dashboard')),
-        '/admin/users': (context) => const AdminUsersScreen(),
-        '/admin/profile': (context) => const AdminProfileScreen(),
+        '/profile': (context) => const StudentProfilePage(),
+        
       },
     );
   }

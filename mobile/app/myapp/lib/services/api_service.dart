@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/auth_response_model.dart';
 import 'storage_service.dart';
 
 // ─── ApiService ─────────────────────────────────────────────────────────────────
@@ -17,7 +16,7 @@ class ApiService {
   static final ApiService instance = ApiService._();
 
   // ── Config ────────────────────────────────────────────────────────────────────
-  static const String _baseUrl = 'http://192.168.1.109:5000'; // Android emulator
+  static const String _baseUrl = 'http://192.168.1.211:5000'; // Android emulator
   // static const String _baseUrl = 'http://localhost:5000'; // iOS
   static const Map<String, String> _jsonHeaders = {
     'Content-Type': 'application/json',

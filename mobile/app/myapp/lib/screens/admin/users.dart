@@ -5,9 +5,7 @@
 //              better typography, glassmorphism, improved forms.
 // ============================================================
 
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 // ─────────────────────────────────────────────
 // THEME CONSTANTS
@@ -93,7 +91,7 @@ class UserModel {
   String get initials {
     final f = prenom.isNotEmpty ? prenom[0] : '';
     final l = nom.isNotEmpty ? nom[0] : '';
-    return '${f}${l}'.toUpperCase();
+    return '$f$l'.toUpperCase();
   }
 }
 
@@ -326,8 +324,7 @@ class AdminUsersApp extends StatelessWidget {
         scaffoldBackgroundColor: kBgBase,
         colorSchemeSeed: kIndigo,
         useMaterial3: true,
-        dialogBackgroundColor: kBgSurface,
-        fontFamily: 'SF Pro Display',
+        fontFamily: 'SF Pro Display', dialogTheme: DialogThemeData(backgroundColor: kBgSurface),
       ),
       home: const AdminUsersScreen(),
     );
@@ -1251,7 +1248,9 @@ class _UserFormDialogState extends State<_UserFormDialog> {
 
   @override
   void dispose() {
-    for (final c in [_nomCtrl, _prenomCtrl, _emailCtrl, _passwordCtrl, _numTelCtrl, _adresseCtrl, _specialiteCtrl, _numTelEnsCtrl, _adminCodeCtrl]) c.dispose();
+    for (final c in [_nomCtrl, _prenomCtrl, _emailCtrl, _passwordCtrl, _numTelCtrl, _adresseCtrl, _specialiteCtrl, _numTelEnsCtrl, _adminCodeCtrl]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -1259,7 +1258,9 @@ class _UserFormDialogState extends State<_UserFormDialog> {
     setState(() {
       _role = r; _classeId = null; _selClasses = [];
       _dob = null; _dIns = null; _dEmb = null;
-      for (final c in [_numTelCtrl, _adresseCtrl, _specialiteCtrl, _numTelEnsCtrl, _adminCodeCtrl]) c.clear();
+      for (final c in [_numTelCtrl, _adresseCtrl, _specialiteCtrl, _numTelEnsCtrl, _adminCodeCtrl]) {
+        c.clear();
+      }
     });
   }
 
@@ -1275,8 +1276,7 @@ class _UserFormDialogState extends State<_UserFormDialog> {
       lastDate: DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.dark(primary: kIndigo, surface: kBgSurface, onSurface: kTextPrimary),
-          dialogBackgroundColor: kBgSurface,
+          colorScheme: const ColorScheme.dark(primary: kIndigo, surface: kBgSurface, onSurface: kTextPrimary), dialogTheme: DialogThemeData(backgroundColor: kBgSurface),
         ),
         child: child!,
       ),
@@ -1443,7 +1443,7 @@ class _UserFormDialogState extends State<_UserFormDialog> {
                     const _FieldLabel('Class', required: true),
                     const SizedBox(height: 4),
                     DropdownButtonFormField<String>(
-                      value: _classeId,
+                      initialValue: _classeId,
                       dropdownColor: kBgElevated,
                       style: const TextStyle(fontSize: 13, color: kTextPrimary),
                       decoration: _fieldDeco(hint: 'Select class'),

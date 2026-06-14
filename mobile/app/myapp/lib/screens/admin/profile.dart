@@ -144,7 +144,9 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   }
 
   void _disposeControllers() {
-    for (final c in [_prenomCtrl, _nomCtrl, _emailCtrl, _telCtrl, _adresseCtrl, _adminCodeCtrl]) c.dispose();
+    for (final c in [_prenomCtrl, _nomCtrl, _emailCtrl, _telCtrl, _adresseCtrl, _adminCodeCtrl]) {
+      c.dispose();
+    }
   }
 
   @override
@@ -205,8 +207,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       lastDate: DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.dark(primary: kIndigo, surface: kBgSurface, onSurface: kTextPrimary),
-          dialogBackgroundColor: kBgSurface,
+          colorScheme: const ColorScheme.dark(primary: kIndigo, surface: kBgSurface, onSurface: kTextPrimary), dialogTheme: DialogThemeData(backgroundColor: kBgSurface),
         ),
         child: child!,
       ),
@@ -1266,7 +1267,7 @@ class _PrefToggle extends StatelessWidget {
     Switch(
       value: value,
       onChanged: onChanged,
-      activeColor: kIndigo,
+      activeThumbColor: kIndigo,
       activeTrackColor: kIndigo.withOpacity(0.3),
       inactiveTrackColor: kBgHighlight,
       inactiveThumbColor: kTextMuted,

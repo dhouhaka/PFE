@@ -1,4 +1,3 @@
-import '../models/examen_model.dart';
 import 'api_service.dart';
 
 // ─── ExamenService ──────────────────────────────────────────────────────────────

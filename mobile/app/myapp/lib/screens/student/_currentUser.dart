@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../services/storage_service.dart';
 import '../../models/user_model.dart';
@@ -15,9 +14,7 @@ Future<UserModel?> loadCurrentUser() async {
   
   try {
     _cachedUser = await StorageService.instance.getUser();
-    if (_cachedUser == null) {
-      _cachedUser = await UserService.instance.getProfile();
-    }
+    _cachedUser ??= await UserService.instance.getProfile();
   } catch (e) {
     debugPrint('loadCurrentUser error: $e');
   }
