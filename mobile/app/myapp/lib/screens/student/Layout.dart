@@ -13,6 +13,7 @@ import 'package:EduNex/screens/student/profile.dart';
 import 'courses.dart';
 import 'exams.dart';
 import 'timetable.dart';
+import 'student_demandes_page.dart';
 
 
 const String _apiBase = 'http://192.168.1.211:5000';
@@ -206,7 +207,7 @@ class _StudentLayoutState extends State<StudentLayout> {
       case 'announcements':
         return const Center(child: Text('Announcements'));
       case 'requests':
-        return const Center(child: Text('Requests'));
+        return StudentDemandesPage(studentId: _user?.id);
       case 'messages':
         return const Center(child: Text('Messages'));
       case 'notifications':
@@ -263,15 +264,11 @@ class _StudentLayoutState extends State<StudentLayout> {
                     children: [
                       _buildTopBar(isDark: isDark, isMobile: isMobile),
       Expanded(
-                        child:
-                            _loadingUser
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : Theme(
-                                  data: Theme.of(context),
-                                  child: _buildPage(),
-                                ),
+                        child: _loadingUser
+                            ? const Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : _buildPage(),
                       ),
                     ],
                   ),

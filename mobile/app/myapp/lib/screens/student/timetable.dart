@@ -76,7 +76,7 @@ class _StudentTimetableScreenState extends State<StudentTimetableScreen> {
       }
 
 
-      final normalizeJourSemaine = (dynamic value) {
+      String? normalizeJourSemaine(dynamic value) {
         if (value == null) return null;
         final v = value.toString().trim().toLowerCase();
         final map = <String, String>{
@@ -89,7 +89,7 @@ class _StudentTimetableScreenState extends State<StudentTimetableScreen> {
           'dimanche': 'Dimanche',
         };
         return map[v];
-      };
+      }
 
       String normalizeTimeHHmm(String? value) {
         if (value == null) return '00:00';
@@ -284,7 +284,7 @@ class _StudentTimetableScreenState extends State<StudentTimetableScreen> {
                       const SizedBox(height: 6),
                       Text(
                         hasSchedule
-                            ? '${_totalClasses} classes scheduled this week'
+                            ? '$_totalClasses classes scheduled this week'
                             : 'No schedule available',
                         style: TextStyle(color: _muted, fontSize: 14),
                       ),

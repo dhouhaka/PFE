@@ -1,56 +1,96 @@
 import '../models/demande_model.dart';
 import 'api_service.dart';
 
-// ─── DemandeService ─────────────────────────────────────────────────────────────
 class DemandeService {
   DemandeService._();
-  static final DemandeService instance = DemandeService._();
 
-  // Create demande
-  Future<DemandeModel> createDemande(Map<String, dynamic> data) async {
+  static final DemandeService instance =
+      DemandeService._();
+
+  Future<DemandeModel> createDemande(
+    Map<String, dynamic> data,
+  ) {
+    final Map<String, dynamic> payload =
+        <String, dynamic>{
+      'nom': (
+        data['nom'] ??
+        data['titre'] ??
+        ''
+      ).toString().trim(),
+      'type': (
+        data['type'] ??
+        ''
+      ).toString().trim(),
+      'description': (
+        data['description'] ??
+        ''
+      ).toString().trim(),
+      if (
+        (
+          data['etudiant'] ??
+          data['etudiantId']
+        ) != null
+      )
+        'etudiant':
+            data['etudiant'] ??
+            data['etudiantId'],
+    };
+
     return ApiService.instance.post(
-      '/demandes/create',
-      data,
+      '/demande/create',
+      payload,
       DemandeModel.fromJson,
     );
   }
 
-  // Get all demandes (admin/teacher)
-  Future<List<DemandeModel>> getAllDemandes() async {
+  Future<List<DemandeModel>>
+      getAllDemandes() {
     return ApiService.instance.getList(
-      '/demandes/getAll',
+      '/demande/getAll',
       DemandeModel.fromJson,
     );
   }
 
-  // Get by ID
-  Future<DemandeModel> getDemandeById(String id) async {
+  Future<DemandeModel> getDemandeById(
+    String id,
+  ) {
     return ApiService.instance.get(
-      '/demandes/getById/$id',
+      '/demande/getById/$id',
       DemandeModel.fromJson,
     );
   }
 
-  // Get user demandes
-  Future<List<DemandeModel>> getMyDemandes() async {
+  Future<List<DemandeModel>> getMyDemandes(
+    String userId,
+  ) {
+    final String id = userId.trim();
+
+    if (id.isEmpty) {
+      throw Exception('Student ID is missing');
+    }
+
     return ApiService.instance.getList(
-      '/demandes/user',
+      '/demande/user/$id',
       DemandeModel.fromJson,
     );
   }
 
-  // Update demande
-  Future<DemandeModel> updateDemande(String id, Map<String, dynamic> data) async {
+  Future<DemandeModel> updateDemande(
+    String id,
+    Map<String, dynamic> data,
+  ) {
     return ApiService.instance.put(
-      '/demandes/update/$id',
+      '/demande/update/$id',
       data,
       DemandeModel.fromJson,
     );
   }
 
-  // Delete demande
-  Future<void> deleteDemande(String id) async {
-    await ApiService.instance.delete('/demandes/delete/$id');
+  Future<void> deleteDemande(
+    String id,
+  ) async {
+    await ApiService.instance.delete(
+      '/demande/delete/$id',
+    );
   }
 }
-
